@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import *
 from PIL import Image, ImageOps
 from pathlib import Path
-import numpy as np
 from numpy import asarray
 from recognition import predict
 from keras_preprocessing import image
@@ -18,6 +17,20 @@ main.maxsize(480, 280)
 
 main.configure(bg='grey')
 
+def prediction(canvas,fileName):
+    # save postscipt image 
+    canvas.postscript(file='images/postscript.eps') 
+    # use PIL to convert to PNG 
+    img = Image.open('images/postscript.eps')
+    img.save(fileName + '.jpeg', 'jpeg')
+    img = image.load_img(fileName + '.jpeg', 'jpeg', color_mode='grayscale', target_size=(28, 28))
+    img = ImageOps.invert(img)
+    img.save(fileName + '.jpeg', 'jpeg')
+    img = image.load_img(fileName + '.jpeg', 'jpeg', color_mode='grayscale', target_size=(28, 28))
+    data = asarray(img)
+    output = predict(data)
+    return output
+
 def get_xy(event):
     global lasx, lasy
     lasx, lasy = event.x, event.y
@@ -32,20 +45,6 @@ def clear_canvas():
 
 def update_text():
    label.configure(text = f'Predicted : {prediction(canvas, f"images/img")}')
-
-def prediction(canvas,fileName):
-    # save postscipt image 
-    canvas.postscript(file = 'images/postscript.eps') 
-    # use PIL to convert to PNG 
-    img = Image.open('images/postscript.eps')
-    img.save(fileName + '.jpeg', 'jpeg')
-    img = image.load_img(fileName + '.jpeg', 'jpeg', color_mode='grayscale', target_size=(28, 28))
-    img = ImageOps.invert(img)
-    img.save(fileName + '.jpeg', 'jpeg')
-    img = image.load_img(fileName + '.jpeg', 'jpeg', color_mode='grayscale', target_size=(28, 28))
-    data = asarray(img)
-    output = predict(data)
-    return output
 
 canvas = tk.Canvas(main, cursor="dot", width=280, height=280)
 canvas.place(x=0, y=0)
