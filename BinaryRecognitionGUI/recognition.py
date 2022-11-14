@@ -1,29 +1,16 @@
 import numpy as np
 import tensorflow as tf
+from pathlib import Path
 from tensorflow.python.keras.engine.sequential import Sequential
 from tensorflow.python.keras.layers import Dense
-from keras.datasets import mnist
 
-# Load Data from MNIST Dataset
-(X_train, y_train), (X_test, y_test) = mnist.load_data()
+cwd = Path.cwd()
+file_X = Path.joinpath(cwd, "dataset", "X_train.npy")
+file_y = Path.joinpath(cwd, "dataset", "y_train.npy")
 
-#Filter out 0s and 1s from the MNIST datasaet
-train_filter = np.where((y_train == 0 ) | (y_train == 1))
-test_filter = np.where((y_test == 0) | (y_test == 1))
-
-#Assign subarray of 0s and 1s into training sets
-X_train, y_train = X_train[train_filter], y_train[train_filter]
-X_test, y_test = X_test[test_filter], y_test[test_filter]
-
-#Reshape data into a simpler shape
-X_train = X_train.reshape(12665, 784)
-X_test = X_test.reshape(2115, 784)
-y_train = y_train.reshape(12665, 1)
-y_test = y_test.reshape(2115, 1)
-
-# Pre-processing/normalizing of X_train & X_test between (0, 1)
-X_train = X_train.astype(np.float32)/255
-X_test = X_test.astype(np.float32)/255
+# Load Data from npy files
+X_train = np.load(file_X)
+y_train = np.load(file_y)
 
 #sequential model creation using dense layers 
 model = Sequential(

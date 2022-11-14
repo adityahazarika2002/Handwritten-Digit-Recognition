@@ -1,9 +1,11 @@
 import tkinter as tk
+import numpy as np
 from tkinter import *
 from PIL import Image, ImageOps
 from pathlib import Path
 from numpy import asarray
 from recognition import predict
+from add_data import add_input
 from keras_preprocessing import image
 
 cwd = Path.cwd()
@@ -27,9 +29,18 @@ def prediction(canvas,fileName):
     img = ImageOps.invert(img)
     img.save(fileName + '.jpeg', 'jpeg')
     img = image.load_img(fileName + '.jpeg', 'jpeg', color_mode='grayscale', target_size=(28, 28))
+
+    global img_data
     data = asarray(img)
+    img_data = list(img.getdata())
+    img_data = np.array(img_data)
+    img_data = img_data.reshape(-1, 784)
     output = predict(data)
     return output
+
+def add_user_data(entry):
+    add_input(img_data, entry)
+    
 
 def get_xy(event):
     global lasx, lasy
@@ -58,12 +69,13 @@ label1 = tk.Label(main, bg = "gray",text = "Annotate : ")
 label1.place(x=293, y=45)
 
 entry=Entry(main, width=20, textvariable="annotation")
+entry.insert(0,"0")
 entry.place(x=360, y=45, width=15)
 
 button = tk.Button(main, text='Predict', width =7, command=lambda:[prediction(canvas, f"images/img"), update_text()])
 button.place(x=293, y=250)
 
-button1 = tk.Button(main, text='Insert', width =7, command=clear_canvas)
+button1 = tk.Button(main, text='Insert', width =7, command=add_user_data(int(entry.get())))
 button1.place(x=353, y=250)
 
 button2 = tk.Button(main, text='Reset', width =7, command=clear_canvas)
